@@ -58,10 +58,10 @@ namespace Bicep.Core.Samples
             public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).BicepStreamName!;
         }
 
-        private static string GetParentStreamName(string streamName)
+        public static string GetParentStreamName(string streamName)
             => Path.GetDirectoryName(streamName)!.Replace('\\', '/');
 
-        private static IEnumerable<object[]> GetExampleData()
+        public static IEnumerable<object[]> GetExampleData()
         {
             const string pathPrefix = "docs/examples/";
             const string bicepExtension = ".bicep";

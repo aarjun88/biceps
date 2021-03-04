@@ -35,6 +35,7 @@
     <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
+    <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
   </ItemGroup>
 
 </Project>

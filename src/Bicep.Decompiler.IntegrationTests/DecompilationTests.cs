@@ -20,6 +20,8 @@ using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
+using Bicep.Core.Samples;
+using static Bicep.Core.Samples.ExamplesTests;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -28,24 +30,6 @@ namespace Bicep.Core.IntegrationTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
-
-        public class ExampleData
-        {
-            public ExampleData(string bicepStreamName, string jsonStreamName, string outputFolderName)
-            {
-                BicepStreamName = bicepStreamName;
-                JsonStreamName = jsonStreamName;
-                OutputFolderName = outputFolderName;
-            }
-
-            public string BicepStreamName { get; }
-
-            public string JsonStreamName { get; }
-
-            public string OutputFolderName { get; }
-
-            public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).JsonStreamName!;
-        }
 
         private static IEnumerable<object[]> GetWorkingExampleData()
         {
@@ -116,6 +100,40 @@ namespace Bicep.Core.IntegrationTests
                         exampleExists ? File.ReadAllText(syntaxTree.FileUri.LocalPath) : "",
                         expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, syntaxTree.FileUri.LocalPath)),
                         actualLocation: syntaxTree.FileUri.LocalPath + ".actual");
+                }
+            }
+        }
+
+        public static IEnumerable<object[]> GetExampleData() => ExamplesTests.GetExampleData();
+        
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        public void Decompiler_can_successfully_decompile_examples(ExampleData example)
+        {
+            // save all the files in the containing directory to disk so that we can test module resolution
+            var parentStream = ExamplesTests.GetParentStreamName(example.JsonStreamName);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
+            var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
+            var typeProvider = new AzResourceTypeProvider();
+
+            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
+
+            var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
+            var workspace = new Workspace();
+            workspace.UpsertSyntaxTrees(syntaxTrees);
+
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
+            var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
+            var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree();
+
+            using (new AssertionScope())
+            {
+                foreach (var syntaxTree in syntaxTreeGrouping.SyntaxTrees)
+                {
+                    var errorDiagnostics = diagnosticsBySyntaxTree[syntaxTree].Where(x => x.Level == DiagnosticLevel.Error);
+                    
+                    errorDiagnostics.Should().BeEmpty();
                 }
             }
         }
