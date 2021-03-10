@@ -115,23 +115,11 @@ jobs:
       - name: Publish Bicep
         run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r linux-musl-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
 
-      - name: Setup Node.js
-        uses: docker://microsoft/azure-cli:latest
-        with:
-          entrypoint: apk
-          args: add --update nodejs npm
-
-      - name: npm ci
-        uses: docker://microsoft/azure-cli:latest
-        with:
-          entrypoint: /usr/bin/npm
-          args: ci --prefix ./src/Bicep.Cli.E2eTests
-
       - name: Run Bicep E2E Tests
         uses: docker://microsoft/azure-cli:latest
         with:
-          entrypoint: /usr/bin/npm
-          args: test --prefix ./src/Bicep.Cli.E2eTests
+          entrypoint: sh
+          args: -c apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests
         env:
           BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/bicep
       
