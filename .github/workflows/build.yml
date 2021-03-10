@@ -116,13 +116,13 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r linux-musl-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Setup Node.js
-        uses: microsoft/azure-cli:latest
+        uses: docker://microsoft/azure-cli:latest
         with:
           entrypoint: apk
           args: add --update nodejs npm
 
       - name: Run Bicep E2E Tests
-        uses: microsoft/azure-cli:latest
+        uses: docker://microsoft/azure-cli:latest
         with:
           entrypoint: sh
           args: -c npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests
