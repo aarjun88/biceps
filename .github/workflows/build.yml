@@ -121,11 +121,17 @@ jobs:
           entrypoint: apk
           args: add --update nodejs npm
 
+      - name: npm ci
+        uses: docker://microsoft/azure-cli:latest
+        with:
+          entrypoint: npm
+          args: ci --prefix ./src/Bicep.Cli.E2eTests
+
       - name: Run Bicep E2E Tests
         uses: docker://microsoft/azure-cli:latest
         with:
-          entrypoint: sh
-          args: -c npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests
+          entrypoint: npm
+          args: test --prefix ./src/Bicep.Cli.E2eTests
         env:
           BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/bicep
       
