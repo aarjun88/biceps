@@ -103,20 +103,17 @@ jobs:
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
-      # - name: Setup .NET Core
-      #   uses: actions/setup-dotnet@v1.7.2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1.7.2
       
-      # - name: Build
-      #   run: dotnet build --configuration release
+      - name: Build
+        run: dotnet build --configuration release
       
-      # - name: Test
-      #   run: dotnet test --configuration release --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
+      - name: Test
+        run: dotnet test --configuration release --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
 
-      # - name: Publish Bicep
-      #   run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r linux-musl-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
-
-      # - name: Setup Node.js
-      #   run: apk add --update nodejs npm
+      - name: Publish Bicep
+        run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r linux-musl-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: npm ci
         uses: docker://node:10.24.0-alpine3.11
@@ -124,11 +121,13 @@ jobs:
           entrypoint: npm
           args: ci --prefix ./src/Bicep.Cli.E2eTests
 
-      # - name: Run Bicep E2E Tests
-      #   run: npm ci && npm test
-      #   env:
-      #     BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/bicep
-      #   working-directory: ./src/Bicep.Cli.E2eTests
+      - name: Run Bicep E2E Tests
+        uses: docker://node:10.24.0-alpine3.11
+        with:
+          entrypoint: npm
+          args: test --prefix ./src/Bicep.Cli.E2eTests
+        env:
+          BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/bicep
       
       # - name: Upload Bicep
       #   uses: actions/upload-artifact@v2
