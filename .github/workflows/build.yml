@@ -122,7 +122,7 @@ jobs:
         uses: docker://node:10.24.0-alpine3.11
         with:
           entrypoint: npm
-          args: ci
+          args: ci --prefix ./src/Bicep.Cli.E2eTests
 
       # - name: Run Bicep E2E Tests
       #   run: npm ci && npm test
