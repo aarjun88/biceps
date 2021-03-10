@@ -124,13 +124,13 @@ jobs:
       - name: npm ci
         uses: docker://microsoft/azure-cli:latest
         with:
-          entrypoint: npm
+          entrypoint: /usr/bin/npm
           args: ci --prefix ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests
         uses: docker://microsoft/azure-cli:latest
         with:
-          entrypoint: npm
+          entrypoint: /usr/bin/npm
           args: test --prefix ./src/Bicep.Cli.E2eTests
         env:
           BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/release/net5.0/linux-musl-x64/publish/bicep
