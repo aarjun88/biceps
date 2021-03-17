@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer
         private Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
-            server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options =>
+            server = OmnisharpLanguageServer.PreInit(options =>
             {
                 options
                     .WithHandler<BicepTextDocumentSyncHandler>()
@@ -60,9 +60,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
-#pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
-#pragma warning restore 0612
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 onOptionsFunc(options);

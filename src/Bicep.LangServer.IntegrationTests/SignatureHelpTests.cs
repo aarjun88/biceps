@@ -128,11 +128,15 @@ namespace Bicep.LangServer.IntegrationTests
                 if (initial!.Signatures.Count() >= 2)
                 {
                     // update index to 1 to mock user changing active signature
-                    initial.ActiveSignature = 1;
+                    const int ExpectedActiveSignatureIndex = 1;
+                    var modified = initial with
+                    {
+                        ActiveSignature = ExpectedActiveSignatureIndex
+                    };
 
                     var shouldRemember = await RequestSignatureHelp(client, position, uri, new SignatureHelpContext
                     {
-                        ActiveSignatureHelp = initial,
+                        ActiveSignatureHelp = modified,
                         IsRetrigger = true,
                         TriggerKind = SignatureHelpTriggerKind.ContentChange
                     });
@@ -140,7 +144,7 @@ namespace Bicep.LangServer.IntegrationTests
                     // we passed the same signature help as content with a different active index
                     // should get the same index back
                     AssertValidSignatureHelp(shouldRemember, symbol, expectDecorator);
-                    shouldRemember!.ActiveSignature.Should().Be(1);
+                    shouldRemember!.ActiveSignature.Should().Be(ExpectedActiveSignatureIndex);
                 }
             }
             else

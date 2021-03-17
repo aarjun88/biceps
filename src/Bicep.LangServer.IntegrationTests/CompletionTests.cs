@@ -296,7 +296,65 @@ hel|lo
         private static async Task<JToken> GetActualCompletions(ILanguageClient client, DocumentUri uri, Position position)
         {
             // local function
-            string NormalizeLineEndings(string value) => value.Replace("\r", string.Empty);
+            string? NormalizeLineEndings(string? value) => value is null
+                ? null
+                : value.Replace("\r", string.Empty);
+
+            StringOrMarkupContent? NormalizeDocumentation(StringOrMarkupContent? value) =>
+                value?.MarkupContent?.Value is null
+                    ? null
+                    : new(value.MarkupContent with
+                    {
+                        Value = NormalizeLineEndings(value.MarkupContent.Value)!
+                    });
+
+            TextEditOrInsertReplaceEdit? NormalizeTextEdit(TextEditOrInsertReplaceEdit? value) =>
+                value is null
+                    ? null
+                    : new TextEditOrInsertReplaceEdit(value.TextEdit! with
+                    {
+                        NewText = NormalizeLineEndings(value.TextEdit.NewText)!,
+
+                        // ranges in these text edits will vary by completion trigger position
+                        // if we try to assert on these, we will have an explosion of assert files
+                        // let's ignore it for now until we come up with a better solution
+                        Range = new Range()
+                    });
+
+            TextEditContainer? NormalizeAdditionalTextEdits(TextEditContainer? value) =>
+                value is null
+                    ? null
+                    : new TextEditContainer(value.Select(edit => edit with
+                    {
+                        Range = new Range()
+                    }));
+
+            // OmniSharp sometimes will add a $$__handler_id__$$ property to the Data dictionary of a completion
+            // (likely is needed to somehow help with routing of the ResolveCompletion requests)
+            // the value is different every time you run the language server
+            // to make our test asserts work, we will remove it and set the Data property null if nothing else remains in the object
+            JToken? NormalizeData(JToken? value)
+            {
+                // LSP protocol dictates that the Data property is of "any" type, so we need to check
+                if (value is JObject @object)
+                {
+                    const string omnisharpHandlerIdPropertyName = "$$__handler_id__$$";
+                
+                    if (@object.Property(omnisharpHandlerIdPropertyName) != null)
+                    {
+                        @object.Remove(omnisharpHandlerIdPropertyName);
+
+                        if (!@object.HasValues)
+                        {
+                            return null;
+                        }
+
+                        return @object;
+                    }
+                }
+
+                return value;
+            }
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -304,67 +362,18 @@ hel|lo
                 Position = position
             });
 
-            // normalize line endings so assertions match on all OSs
-            foreach (var completion in completions)
+            // normalize the completions to remove OS-specific mismatches (line endings) as well as any randomness
+            var normalized = completions.Select(completion => completion with
             {
-                if (completion.InsertText != null)
-                {
-                    completion.InsertText = NormalizeLineEndings(completion.InsertText);
-                }
+                InsertText = NormalizeLineEndings(completion.InsertText),
+                Detail = NormalizeLineEndings(completion.Detail),
+                Documentation = NormalizeDocumentation(completion.Documentation),
+                TextEdit = NormalizeTextEdit(completion.TextEdit),
+                AdditionalTextEdits = NormalizeAdditionalTextEdits(completion.AdditionalTextEdits),
+                Data = NormalizeData(completion.Data)
+            });
 
-                if (completion.Detail != null)
-                {
-                    completion.Detail = NormalizeLineEndings(completion.Detail);
-                }
-
-                if (completion.Documentation?.MarkupContent?.Value != null)
-                {
-                    completion.Documentation.MarkupContent.Value = NormalizeLineEndings(completion.Documentation.MarkupContent.Value);
-                }
-
-                if (completion.TextEdit != null)
-                {
-                    completion.TextEdit.NewText = NormalizeLineEndings(completion.TextEdit.NewText);
-
-                    // ranges in these text edits will vary by completion trigger position
-                    // if we try to assert on these, we will have an explosion of assert files
-                    // let's ignore it for now until we come up with a better solution
-                    completion.TextEdit.Range = new Range();
-                }
-
-                // can't do != null because the container overloads the != operator 😠
-                if (!(completion.AdditionalTextEdits is null))
-                {
-                    foreach (var additionalEdit in completion.AdditionalTextEdits)
-                    {
-                        additionalEdit.Range = new Range();
-                    }
-                }
-            }
-
-            // OmniSharp sometimes will add a $$__handler_id__$$ property to the Data dictionary of a completion
-            // (likely is needed to somehow help with routing of the ResolveCompletion requests)
-            // the value is different every time you run the language server
-            // to make our test asserts work, we will remove it and set the Data property null if nothing else remains in the object
-            foreach (var completion in completions)
-            {
-                const string omnisharpHandlerIdPropertyName = "$$__handler_id__$$";
-
-                // LSP protocol dictates that the Data property is of "any" type, so we need to check
-                if (completion.Data is JObject @object && @object.Property(omnisharpHandlerIdPropertyName) != null)
-                {
-                    @object.Remove(omnisharpHandlerIdPropertyName);
-
-                    if (!@object.HasValues)
-                    {
-                        completion.Data = null;
-                    }
-                }
-            }
-
-            //var serialized = JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal));
-
-            return JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal), DataSetSerialization.CreateSerializer());
+            return JToken.FromObject(normalized.OrderBy(c => c.Label, StringComparer.Ordinal), DataSetSerialization.CreateSerializer());
         }
 
         private static (JToken content, ExpectedCompletionsScope scope)? ResolveExpectedCompletions(DataSet dataSet, string setName)

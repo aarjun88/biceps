@@ -84,7 +84,7 @@ namespace Bicep.LangServer.UnitTests
             foreach (var (detail, completion) in snippetsByDetail)
             {
                 // validate snippet
-                var snippet = new Snippet(completion.TextEdit!.NewText);
+                var snippet = new Snippet(completion.TextEdit!.TextEdit!.NewText);
                 
                 // if we don't have placeholders, why is it a snippet?
                 snippet.Placeholders.Should().NotBeEmpty();
@@ -129,7 +129,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Module keyword");
-                    c.TextEdit!.NewText.Should().Be("module");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("module");
                 },
                 c =>
                 {
@@ -138,7 +138,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Output keyword");
-                    c.TextEdit!.NewText.Should().Be("output");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("output");
                 },
                 c =>
                 {
@@ -147,7 +147,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Parameter keyword");
-                    c.TextEdit!.NewText.Should().Be("param");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("param");
                 },
                 c =>
                 {
@@ -156,7 +156,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Resource keyword");
-                    c.TextEdit!.NewText.Should().Be("resource");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("resource");
                 },
                 c =>
                 {
@@ -165,7 +165,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Target Scope keyword");
-                    c.TextEdit!.NewText.Should().Be("targetScope");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("targetScope");
                 },
                 c =>
                 {
@@ -174,7 +174,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Variable keyword");
-                    c.TextEdit!.NewText.Should().Be("var");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("var");
                 });
         }
 
@@ -209,7 +209,7 @@ output o int = 42
             resourceCompletion.Label.Should().Be(expectedResource);
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
+            resourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedResource);
             resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[]{ ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
@@ -218,7 +218,7 @@ output o int = 42
             paramCompletion.Label.Should().Be(expectedParam);
             paramCompletion.Kind.Should().Be(CompletionItemKind.Field);
             paramCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            paramCompletion.TextEdit!.NewText.Should().Be(expectedParam);
+            paramCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedParam);
             paramCompletion.CommitCharacters.Should().BeNull();
             paramCompletion.Detail.Should().Be(expectedParam);
         }
@@ -307,7 +307,7 @@ output length int =
             variableCompletion.Label.Should().Be(expectedVariable);
             variableCompletion.Kind.Should().Be(CompletionItemKind.Variable);
             variableCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            variableCompletion.TextEdit!.NewText.Should().Be(expectedVariable);
+            variableCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedVariable);
             variableCompletion.CommitCharacters.Should().BeNull();
             variableCompletion.Detail.Should().Be(expectedVariable);
 
@@ -316,7 +316,7 @@ output length int =
             resourceCompletion.Label.Should().Be(expectedResource);
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
+            resourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedResource);
             resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new []{ ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
@@ -325,7 +325,7 @@ output length int =
             paramCompletion.Label.Should().Be(expectedParam);
             paramCompletion.Kind.Should().Be(CompletionItemKind.Field);
             paramCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            paramCompletion.TextEdit!.NewText.Should().Be(expectedParam);
+            paramCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedParam);
             paramCompletion.CommitCharacters.Should().BeNull();
             paramCompletion.Detail.Should().Be(expectedParam);
         }
@@ -367,8 +367,8 @@ output length int =
                     c.Label.Should().Be("secureObject");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit!.NewText.Should().StartWith("object");
-                    c.TextEdit.NewText.Should().Be("object");
+                    c.TextEdit!.TextEdit!.NewText.Should().StartWith("object");
+                    c.TextEdit.TextEdit.NewText.Should().Be("object");
                     c.Detail.Should().Be("Secure object");
                     c.AdditionalTextEdits!.Count().Should().Be(1);
                     c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
@@ -382,8 +382,8 @@ output length int =
                     c.Label.Should().Be("secureString");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit!.NewText.Should().StartWith("string");
-                    c.TextEdit.NewText.Should().Be("string");
+                    c.TextEdit!.TextEdit!.NewText.Should().StartWith("string");
+                    c.TextEdit.TextEdit.NewText.Should().Be("string");
                     c.Detail.Should().Be("Secure string");
                     c.AdditionalTextEdits!.Count().Should().Be(1);
                     c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
@@ -414,9 +414,9 @@ output length int =
                     c.Label.Should().Be("secureObject");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit!.NewText.Should().Be("object");
-                    c.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.Range.Start.Character.Should().Be(18);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("object");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(18);
                     c.Detail.Should().Be("Secure object");
                     c.AdditionalTextEdits!.Count().Should().Be(1);
                     c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
@@ -430,9 +430,9 @@ output length int =
                     c.Label.Should().Be("secureString");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit!.NewText.Should().Be("string");
-                    c.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.Range.Start.Character.Should().Be(18);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("string");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(18);
                     c.Detail.Should().Be("Secure string");
                     c.AdditionalTextEdits!.Count().Should().Be(1);
                     c.AdditionalTextEdits!.ElementAt(0).NewText.Should().Be("@secure()\n");
@@ -474,7 +474,7 @@ output length int =
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit!.NewText.Should().Be(expected);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -483,7 +483,7 @@ output length int =
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit!.NewText.Should().Be(expected);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -492,7 +492,7 @@ output length int =
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit!.NewText.Should().Be(expected);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -501,7 +501,7 @@ output length int =
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit!.NewText.Should().Be(expected);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -510,7 +510,7 @@ output length int =
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit!.NewText.Should().Be(expected);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 });
         }
@@ -536,7 +536,7 @@ output length int =
                 .OrderBy(s => s);
 
             functionCompletions.Select(c => c.Label).Should().BeEquivalentTo(availableFunctionNames);
-            functionCompletions.Should().OnlyContain(c => c.TextEdit!.NewText.StartsWith(c.Label + '(', StringComparison.Ordinal));
+            functionCompletions.Should().OnlyContain(c => c.TextEdit!.TextEdit!.NewText.StartsWith(c.Label + '(', StringComparison.Ordinal));
             functionCompletions.Should().OnlyContain(c => string.Equals(c.Label + "()", c.Detail));
             functionCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
         }
