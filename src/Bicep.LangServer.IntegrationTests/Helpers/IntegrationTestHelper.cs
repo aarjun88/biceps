@@ -58,6 +58,8 @@ namespace Bicep.LangServer.IntegrationTests
             });
             await client.Initialize(CancellationToken.None);
 
+            testContext.WriteLine("LanguageClient initialize finished.");
+
             return client;
         }
 
@@ -107,6 +109,8 @@ namespace Bicep.LangServer.IntegrationTests
 
             // send open document notification
             client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, text, 0));
+
+            testContext.WriteLine($"Opened file {documentUri}.");
 
             // notifications don't produce responses,
             // but our server should send us diagnostics when it receives the notification
