@@ -27,7 +27,7 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private const int DefaultTimeout = 20000;
 
-        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
             resourceTypeProvider ??= TestResourceTypeProvider.Create();
             fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string>());
@@ -44,12 +44,15 @@ namespace Bicep.LangServer.IntegrationTests
                     FileResolver = fileResolver,
                 });
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
-
+            
             var client = LanguageClient.PreInit(options => 
-            {   
+            {
                 options
                     .WithInput(clientPipe.Reader)
-                    .WithOutput(serverPipe.Writer);
+                    .WithOutput(serverPipe.Writer)
+                    .OnInitialize((client, request, cancellationToken) => { testContext.WriteLine("Language client initializing."); return Task.CompletedTask; })
+                    .OnInitialized((client, request, response, cancellationToken) => { testContext.WriteLine("Language client initialized."); return Task.CompletedTask; })
+                    .OnStarted((client, cancellationToken) => { testContext.WriteLine("Language client started."); return Task.CompletedTask; });
 
                 onClientOptions(options);
             });
@@ -88,11 +91,12 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
+        public static async Task<ILanguageClient> StartServerWithTextAsync(TestContext testContext, string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
             fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, });
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                testContext,
                 options =>
                 {
                     onClientOptions?.Invoke(options);

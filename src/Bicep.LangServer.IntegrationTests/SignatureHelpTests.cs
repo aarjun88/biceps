@@ -34,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
@@ -74,7 +74,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task NonExistentUriShouldProvideNoSignatureHelp()
         {
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, DocumentUri.From("/fake.bicep"));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, string.Empty, DocumentUri.From("/fake.bicep"));
 
             var signatureHelp = await RequestSignatureHelp(client, new Position(0, 0), DocumentUri.From("/fake2.bicep"));
             signatureHelp.Should().BeNull();
@@ -86,7 +86,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var tree = compilation.SyntaxTreeGrouping.EntryPoint;
 

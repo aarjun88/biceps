@@ -55,7 +55,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: new AzResourceTypeProvider(new TypeLoader()));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: new AzResourceTypeProvider(new TypeLoader()));
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
@@ -143,7 +143,7 @@ namespace Bicep.LangServer.IntegrationTests
                 node is not Token;
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);

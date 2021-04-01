@@ -48,7 +48,7 @@ namespace Bicep.LangServer.IntegrationTests
             const string expectedSetName = "declarations";
             var uri = DocumentUri.From($"/{this.TestContext.TestName}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, string.Empty, uri);
 
             var actual = await GetActualCompletions(client, uri, new Position(0, 0));
             var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{this.TestContext.TestName}_{expectedSetName}", actual.ToString(Formatting.Indented));
@@ -113,6 +113,7 @@ namespace Bicep.LangServer.IntegrationTests
             MultipleMessageListener<PublishDiagnosticsParams> diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             ILanguageClient client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
                 options =>
                 {
                     options.OnPublishDiagnostics(diags => diagnosticsListener.AddMessage(diags));
@@ -178,7 +179,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.FromFileSystemPath(entryPoint);
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
 
             var intermediate = new List<(Position position, JToken actual)>();
 
@@ -214,7 +215,7 @@ hel|lo
                 }
             }
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(bicepFile, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, bicepFile, syntaxTree.FileUri, resourceTypeProvider: TypeProvider);
 
             foreach (var cursor in cursors)
             {
