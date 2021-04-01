@@ -69,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: Bicep.TestResults
+          name: Bicep.TestResults.${{ matrix.rid }}
           path: ./TestResults/**/*.trx
           if-no-files-found: error
 
