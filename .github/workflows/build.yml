@@ -63,7 +63,7 @@ jobs:
         run: dotnet pack --configuration ${{ matrix.configuration }}
       
       - name: Test
-        run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v2
