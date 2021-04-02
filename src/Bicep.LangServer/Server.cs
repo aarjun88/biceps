@@ -16,6 +16,8 @@ using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 
@@ -70,6 +72,8 @@ namespace Bicep.LanguageServer
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             await server.Initialize(cancellationToken);
+
+            server.LogInfo("Bicep language service initialized.");
 
             await server.WaitForExit;
         }
