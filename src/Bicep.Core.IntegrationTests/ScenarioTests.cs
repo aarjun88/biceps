@@ -1524,5 +1524,37 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
             evaluated.Should().HaveValueAtPath("$.outputs['providersApiVersionFirst'].value", "3024-01-01");
             evaluated.Should().HaveValueAtPath("$.outputs['providersLocationFirst'].value", "Earth");
         }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/691
+        public void Test_Issue691()
+        {
+            var result = CompilationHelper.Compile(@"
+resource vmWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'working'
+  location: 'west us'
+  properties: {
+    // diagnostics raised - we have a property that doesn't make sense.
+    valThatDoesNotExist: ''
+  }
+}
+
+var vmNotWorkingProps = {
+  valThatDoesNotExist: ''
+}
+
+resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'notWorking'
+  location: 'west us'
+  // no diagnostics raised here even though the type is invalid!
+  properties: vmNotWorkingProps
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP038", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\"."),
+                ("BCP038", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\"."),
+            });
+        }
     }
 }

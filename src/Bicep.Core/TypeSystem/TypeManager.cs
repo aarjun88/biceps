@@ -40,5 +40,8 @@ namespace Bicep.Core.TypeSystem
 
         public SyntaxBase? GetParent(SyntaxBase syntax)
             => binder.GetParent(syntax);
+
+        public VariableDeclarationSyntax? GetVariable(VariableAccessSyntax syntax)
+            => (binder.GetSymbolInfo(syntax) as VariableSymbol)?.DeclaringVariable;
     }
 }

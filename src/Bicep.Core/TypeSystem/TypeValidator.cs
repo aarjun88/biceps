@@ -218,6 +218,11 @@ namespace Bicep.Core.TypeSystem
                 return NarrowArrayAssignmentType(typeManager, arrayValue, targetArrayType, diagnosticWriter, skipConstantCheck);
             }
 
+            if (expression is VariableAccessSyntax variableAccess && typeManager.GetVariable(variableAccess) is {} varDecl)
+            {
+                return NarrowTypeAndCollectDiagnostics(typeManager, varDecl.Value, targetType, diagnosticWriter);
+            }
+
             if (targetType is UnionType targetUnionType)
             {
                 return UnionType.Create(targetUnionType.Members.Where(x => AreTypesAssignable(expressionType, x.Type)));
