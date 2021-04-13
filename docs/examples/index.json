@@ -364,6 +364,11 @@
         "description": "201/portal-dashboard-with-appinsights"
     },
     {
+
+        "filePath": "201/private-aks-cluster/main.bicep",
+        "description": "201/private-aks-cluster"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },
@@ -466,6 +471,10 @@
     {
         "filePath": "201/shared-image-gallery-with-image-defintition-and-role-assignment/main.bicep",
         "description": "201/shared-image-gallery-with-image-defintition-and-role-assignment"
+    },
+    {
+        "filePath": "201/policy-azmonitor-agent-and-dcr-association/main.bicep",
+        "description": "201/policy-azmonitor-agent-and-dcr-association"
     },
     {
         "filePath": "301/expressroute-circuit-vnet-connection/main.bicep",
