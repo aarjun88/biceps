@@ -181,7 +181,7 @@ jobs:
         uses: actions/setup-dotnet@v1.7.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.5.0
         with:
           node-version: 10.x
 
@@ -256,7 +256,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.5.0
         with:
           node-version: 10.x
 
@@ -331,7 +331,7 @@ jobs:
         uses: actions/setup-dotnet@v1.7.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.5.0
         with:
           node-version: 14.x
       
@@ -368,7 +368,7 @@ jobs:
         uses: actions/setup-dotnet@v1.7.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.5.0
         with:
           node-version: 14.x
       
@@ -398,7 +398,7 @@ jobs:
         uses: actions/setup-dotnet@v1.7.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.5.0
         with:
           node-version: 14.x
       
